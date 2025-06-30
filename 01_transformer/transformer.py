@@ -116,7 +116,7 @@ class SentenceEmbedding(nn.Module):
 # assume batch_size = 30, num_heads = 8 
 def attention(Q,K,V,mask=None):
     #30 X 8 X 200 X 64 (batch, heads, max_seq_len, d_k)
-    d_k = K.size()[1]
+    d_k = K.size()[-1]
     #30 x 8 x 64 x 200,(30->batch,8->head) not require to change
     matmul = torch.matmul(input=Q,other=K.transpose(-1,-2))/math.sqrt(d_k) # 30x8x200x200
     if mask is not None:
@@ -139,7 +139,7 @@ class MultiHeadAttention(nn.Module):
         
     def forward(self,x,mask): 
         batch_size,max_sequence_length,d_model = x.size() # 30x200x512
-        qkv = self.qkv #512x1524
+        qkv = self.qkv(x) #512x1524
         qkv = qkv.view(batch_size,max_sequence_length,
                        self.num_heads,3*self.head_dim)#30x200x8x192
         qkv = qkv.permute(0,2,1,3)#30x8x200x192
